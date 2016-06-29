@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Define PROFILE-NAME_AWS_ACCESS_KEY_ID and PROFILE-NAME_AWS_SECRET_ACCESS_KEY environment variables
+# And this will set up aws-cli profile configs for each PROFILE-NAME is finds.  Also supports 
+# PROFILE-NAME_REGION and PROFILE-NAME_OUTPUT 
+options=(aws_access_key_id aws_secret_access_key region output)
+for profile in `env | egrep _AWS_ACCESS_KEY_ID | cut -f1 -d_`; do
+	for option in ${options[@]}; do
+		uoption=`echo $option | awk '{print toupper($0)}'`
+		value="${profile}_${uoption}"
+		if [ ! -z ${!value} ]; then
+			aws configure set $option ${!value} --profile $profile
+		fi
+	done
+done
+
+exec $@
